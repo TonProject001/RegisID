@@ -77,7 +77,7 @@
             align-items: center;
             visibility: hidden;
             opacity: 0;
-            transition: visibility 0s, opacity 0.3s;
+            transition: visibility 0s, opacity 0.3s ease;
         }
         /* Popup content */
         .popup-content {
@@ -86,14 +86,41 @@
             border-radius: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
-        }
-        .popup-content h2 {
-            margin: 0 0 1rem;
+            transform: scale(0.8);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
         }
         /* Show popup */
         .popup.show {
             visibility: visible;
             opacity: 1;
+        }
+        .popup.show .popup-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+        /* Loading animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        /* Fade animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
         }
     </style>
 </head>
@@ -132,6 +159,7 @@
     <div id="loadingPopup" class="popup">
         <div class="popup-content">
             <h2>กำลังจัดส่งข้อมูล</h2>
+            <div class="loading-spinner"></div>
         </div>
     </div>
 
@@ -150,7 +178,7 @@
             const hospital = document.getElementById('hospital').value;
 
             // Show loading popup
-            document.getElementById('loadingPopup').classList.add('show');
+            showPopup('loadingPopup');
 
             const url = new URL('https://script.google.com/macros/s/AKfycbwUPnWBAXOedA3ACOHg7LzJ317KT8UrBWKecAhtG9VGgsTKoEK8JEYL5IjWEB8hlGwr4A/exec');
             url.searchParams.append('fullname', fullname);
@@ -161,30 +189,49 @@
             fetch(url)
                 .then(response => response.text())
                 .then(data => {
-                    // Hide loading popup
-                    document.getElementById('loadingPopup').classList.remove('show');
+                    // Hide loading popup and show success popup with animation
+                    setTimeout(() => {
+                        hidePopup('loadingPopup');
+                        showPopup('successPopup');
+                    }, 1000); // Delay for 1 second to simulate loading
 
-                    // Show success popup
-                    document.getElementById('successPopup').classList.add('show');
+                    // Clear form fields
+                    clearForm();
                 })
                 .catch((error) => {
                     console.error('Error:', error);
                     alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
-                    // Hide loading popup
-                    document.getElementById('loadingPopup').classList.remove('show');
+                    hidePopup('loadingPopup');
                 });
         }
 
+        function clearForm() {
+            document.getElementById('fullname').value = '';
+            document.getElementById('position').value = '';
+            document.getElementById('department').value = '';
+            document.getElementById('hospital').value = '';
+        }
+
+        function showPopup(popupId) {
+            const popup = document.getElementById(popupId);
+            popup.classList.add('show');
+        }
+
+        function hidePopup(popupId) {
+            const popup = document.getElementById(popupId);
+            popup.classList.remove('show');
+        }
+
         function closeWelcomePopup() {
-            document.getElementById('welcomePopup').classList.remove('show');
+            hidePopup('welcomePopup');
         }
 
         function closeSuccessPopup() {
-            document.getElementById('successPopup').classList.remove('show');
+            hidePopup('successPopup');
         }
 
         window.onload = function() {
-            document.getElementById('welcomePopup').classList.add('show');
+            showPopup('welcomePopup');
         }
     </script>
 </body>
