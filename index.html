@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงทะเบียน</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 600;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        /* Popup container */
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s;
+        }
+        /* Popup content */
+        .popup-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .popup-content h2 {
+            margin: 0 0 1rem;
+        }
+        /* Show popup */
+        .popup.show {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>ลงทะเบียน</h2>
+        <div class="form-group">
+            <label for="fullname">ชื่อ-นามสกุล: *(ไม่ต้องใส่คำนำหน้าชื่อ)</label>
+            <input type="text" id="fullname" name="fullname" placeholder="กรุณากรอกชื่อ-นามสกุล">
+        </div>
+        <div class="form-group">
+            <label for="position">ตำแหน่ง:</label>
+            <input type="text" id="position" name="position" placeholder="กรุณากรอกชื่อตำแหน่ง">
+        </div>
+        <div class="form-group">
+            <label for="department">หน่วยงาน:</label>
+            <input type="text" id="department" name="department" placeholder="กรุณากรอกชื่อหน่วยงาน">
+        </div>
+        <div class="form-group">
+            <label for="hospital">โรงพยาบาล:</label>
+            <input type="text" id="hospital" name="hospital" placeholder="กรุณากรอกชื่อโรงพยาบาล">
+        </div>
+        <button onclick="submitForm()">ส่งข้อมูล</button>
+    </div>
+
+    <!-- Popup structure -->
+    <div id="welcomePopup" class="popup">
+        <div class="popup-content">
+            <h2>ยินดีต้อนรับเข้าสู่การลงทะเบียน</h2>
+            <p>อบรมวันที่ 9-14มค.2568
+            <br>ณ โรงพยาบาลสมเด็จพระเจ้าตากสินมหาราช</p>
+            <button onclick="closeWelcomePopup()">ปิด</button>
+        </div>
+    </div>
+
+    <div id="loadingPopup" class="popup">
+        <div class="popup-content">
+            <h2>กำลังจัดส่งข้อมูล</h2>
+        </div>
+    </div>
+
+    <div id="successPopup" class="popup">
+        <div class="popup-content">
+            <h2>ลงทะเบียนเรียบร้อย</h2>
+            <button onclick="closeSuccessPopup()">ปิด</button>
+        </div>
+    </div>
+
+    <script>
+        function submitForm() {
+            const fullname = document.getElementById('fullname').value;
+            const position = document.getElementById('position').value;
+            const department = document.getElementById('department').value;
+            const hospital = document.getElementById('hospital').value;
+
+            // Show loading popup
+            document.getElementById('loadingPopup').classList.add('show');
+
+            const url = new URL('https://script.google.com/macros/s/AKfycbwUPnWBAXOedA3ACOHg7LzJ317KT8UrBWKecAhtG9VGgsTKoEK8JEYL5IjWEB8hlGwr4A/exec');
+            url.searchParams.append('fullname', fullname);
+            url.searchParams.append('position', position);
+            url.searchParams.append('department', department);
+            url.searchParams.append('hospital', hospital);
+
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    // Hide loading popup
+                    document.getElementById('loadingPopup').classList.remove('show');
+
+                    // Show success popup
+                    document.getElementById('successPopup').classList.add('show');
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+                    // Hide loading popup
+                    document.getElementById('loadingPopup').classList.remove('show');
+                });
+        }
+
+        function closeWelcomePopup() {
+            document.getElementById('welcomePopup').classList.remove('show');
+        }
+
+        function closeSuccessPopup() {
+            document.getElementById('successPopup').classList.remove('show');
+        }
+
+        window.onload = function() {
+            document.getElementById('welcomePopup').classList.add('show');
+        }
+    </script>
+</body>
+</html>
