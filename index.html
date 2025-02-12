@@ -113,14 +113,19 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 1rem;
         }
-        /* Fade animation */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        /* Blinking green text */
+        .blink-green {
+            color: #4CAF50; /* สีเขียวเหมือนปุ่ม */
+            font-weight: normal; /* ไม่เป็นตัวหนา */
+            animation: blink 1s infinite; /* เอฟเฟกต์การกระพริบ */
         }
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
+        @keyframes blink {
+            0%, 100% {
+                color: #4CAF50; /* สีเขียว */
+            }
+            50% {
+                color: black; /* สีดำ */
+            }
         }
     </style>
 </head>
@@ -128,7 +133,7 @@
     <div class="container">
         <h2>ลงทะเบียน</h2>
         <div class="form-group">
-            <label for="fullname">ชื่อ-นามสกุล: *(ไม่ต้องใส่คำนำหน้าชื่อ)</label>
+            <label for="fullname">ชื่อ-นามสกุล: <span class="blink-green">(ไม่ต้องใส่คำนำหน้าชื่อ)</span></label>
             <input type="text" id="fullname" name="fullname" placeholder="กรุณากรอกชื่อ-นามสกุล">
         </div>
         <div class="form-group">
@@ -145,7 +150,6 @@
         </div>
         <button onclick="submitForm()">ส่งข้อมูล</button>
     </div>
-
     <!-- Popup structure -->
     <div id="welcomePopup" class="popup">
         <div class="popup-content">
@@ -155,37 +159,31 @@
             <button onclick="closeWelcomePopup()">ปิด</button>
         </div>
     </div>
-
     <div id="loadingPopup" class="popup">
         <div class="popup-content">
             <h2>กำลังจัดส่งข้อมูล</h2>
             <div class="loading-spinner"></div>
         </div>
     </div>
-
     <div id="successPopup" class="popup">
         <div class="popup-content">
             <h2>ลงทะเบียนเรียบร้อย</h2>
             <button onclick="closeSuccessPopup()">ปิด</button>
         </div>
     </div>
-
     <script>
         function submitForm() {
             const fullname = document.getElementById('fullname').value;
             const position = document.getElementById('position').value;
             const department = document.getElementById('department').value;
             const hospital = document.getElementById('hospital').value;
-
             // Show loading popup
             showPopup('loadingPopup');
-
             const url = new URL('https://script.google.com/macros/s/AKfycbwUPnWBAXOedA3ACOHg7LzJ317KT8UrBWKecAhtG9VGgsTKoEK8JEYL5IjWEB8hlGwr4A/exec');
             url.searchParams.append('fullname', fullname);
             url.searchParams.append('position', position);
             url.searchParams.append('department', department);
             url.searchParams.append('hospital', hospital);
-
             fetch(url)
                 .then(response => response.text())
                 .then(data => {
@@ -194,7 +192,6 @@
                         hidePopup('loadingPopup');
                         showPopup('successPopup');
                     }, 1000); // Delay for 1 second to simulate loading
-
                     // Clear form fields
                     clearForm();
                 })
@@ -204,32 +201,26 @@
                     hidePopup('loadingPopup');
                 });
         }
-
         function clearForm() {
             document.getElementById('fullname').value = '';
             document.getElementById('position').value = '';
             document.getElementById('department').value = '';
             document.getElementById('hospital').value = '';
         }
-
         function showPopup(popupId) {
             const popup = document.getElementById(popupId);
             popup.classList.add('show');
         }
-
         function hidePopup(popupId) {
             const popup = document.getElementById(popupId);
             popup.classList.remove('show');
         }
-
         function closeWelcomePopup() {
             hidePopup('welcomePopup');
         }
-
         function closeSuccessPopup() {
             hidePopup('successPopup');
         }
-
         window.onload = function() {
             showPopup('welcomePopup');
         }
