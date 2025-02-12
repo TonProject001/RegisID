@@ -127,6 +127,12 @@
                 color: black; /* สีดำ */
             }
         }
+        /* Error message styling */
+        .error-message {
+            color: red;
+            font-size: 12px;
+            display: none; /* ซ่อนข้อความเริ่มต้น */
+        }
     </style>
 </head>
 <body>
@@ -135,18 +141,22 @@
         <div class="form-group">
             <label for="fullname">ชื่อ-นามสกุล: <span class="blink-green">(ไม่ต้องใส่คำนำหน้าชื่อ)</span></label>
             <input type="text" id="fullname" name="fullname" placeholder="กรุณากรอกชื่อ-นามสกุล">
+            <span id="fullname-error" class="error-message"></span>
         </div>
         <div class="form-group">
             <label for="position">ตำแหน่ง:</label>
             <input type="text" id="position" name="position" placeholder="กรุณากรอกชื่อตำแหน่ง">
+            <span id="position-error" class="error-message"></span>
         </div>
         <div class="form-group">
             <label for="department">หน่วยงาน:</label>
             <input type="text" id="department" name="department" placeholder="กรุณากรอกชื่อหน่วยงาน">
+            <span id="department-error" class="error-message"></span>
         </div>
         <div class="form-group">
             <label for="hospital">โรงพยาบาล:</label>
             <input type="text" id="hospital" name="hospital" placeholder="กรุณากรอกชื่อโรงพยาบาล">
+            <span id="hospital-error" class="error-message"></span>
         </div>
         <button onclick="submitForm()">ส่งข้อมูล</button>
     </div>
@@ -173,17 +183,59 @@
     </div>
     <script>
         function submitForm() {
-            const fullname = document.getElementById('fullname').value;
-            const position = document.getElementById('position').value;
-            const department = document.getElementById('department').value;
-            const hospital = document.getElementById('hospital').value;
+            const fullname = document.getElementById('fullname').value.trim();
+            const position = document.getElementById('position').value.trim();
+            const department = document.getElementById('department').value.trim();
+            const hospital = document.getElementById('hospital').value.trim();
+
+            // Clear previous error messages
+            document.getElementById('fullname-error').textContent = '';
+            document.getElementById('position-error').textContent = '';
+            document.getElementById('department-error').textContent = '';
+            document.getElementById('hospital-error').textContent = '';
+            document.getElementById('fullname-error').style.display = 'none';
+            document.getElementById('position-error').style.display = 'none';
+            document.getElementById('department-error').style.display = 'none';
+            document.getElementById('hospital-error').style.display = 'none';
+
+            let isValid = true;
+
+            // Validate each field
+            if (!fullname) {
+                document.getElementById('fullname-error').textContent = 'กรุณากรอกชื่อ-นามสกุล';
+                document.getElementById('fullname-error').style.display = 'block';
+                isValid = false;
+            }
+            if (!position) {
+                document.getElementById('position-error').textContent = 'กรุณากรอกตำแหน่ง';
+                document.getElementById('position-error').style.display = 'block';
+                isValid = false;
+            }
+            if (!department) {
+                document.getElementById('department-error').textContent = 'กรุณากรอกหน่วยงาน';
+                document.getElementById('department-error').style.display = 'block';
+                isValid = false;
+            }
+            if (!hospital) {
+                document.getElementById('hospital-error').textContent = 'กรุณากรอกโรงพยาบาล';
+                document.getElementById('hospital-error').style.display = 'block';
+                isValid = false;
+            }
+
+            // If any field is invalid, stop the submission
+            if (!isValid) {
+                return;
+            }
+
             // Show loading popup
             showPopup('loadingPopup');
+
             const url = new URL('https://script.google.com/macros/s/AKfycbwUPnWBAXOedA3ACOHg7LzJ317KT8UrBWKecAhtG9VGgsTKoEK8JEYL5IjWEB8hlGwr4A/exec');
             url.searchParams.append('fullname', fullname);
             url.searchParams.append('position', position);
             url.searchParams.append('department', department);
             url.searchParams.append('hospital', hospital);
+
             fetch(url)
                 .then(response => response.text())
                 .then(data => {
@@ -201,26 +253,32 @@
                     hidePopup('loadingPopup');
                 });
         }
+
         function clearForm() {
             document.getElementById('fullname').value = '';
             document.getElementById('position').value = '';
             document.getElementById('department').value = '';
             document.getElementById('hospital').value = '';
         }
+
         function showPopup(popupId) {
             const popup = document.getElementById(popupId);
             popup.classList.add('show');
         }
+
         function hidePopup(popupId) {
             const popup = document.getElementById(popupId);
             popup.classList.remove('show');
         }
+
         function closeWelcomePopup() {
             hidePopup('welcomePopup');
         }
+
         function closeSuccessPopup() {
             hidePopup('successPopup');
         }
+
         window.onload = function() {
             showPopup('welcomePopup');
         }
